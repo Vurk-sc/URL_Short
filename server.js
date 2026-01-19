@@ -25,14 +25,6 @@ app.get('/', (req, res) => {
 
 // --- Routes ---
 
-// Config Endpoint (Securely serve public keys)
-app.get('/api/config', (req, res) => {
-    res.json({
-        supabaseUrl: process.env.SUPABASE_URL,
-        supabaseKey: process.env.SUPABASE_KEY
-    });
-});
-
 // --- Supabase Config ---
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;

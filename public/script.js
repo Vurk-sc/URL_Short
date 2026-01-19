@@ -1,4 +1,8 @@
 // --- Configuration ---
+// Supabase public credentials (safe to expose - they're anon keys)
+const SUPABASE_URL = 'https://uicdrghgsxkeohljtryw.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpY2RyZ2hnc3hrZW9obGp0cnl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg3NzUyNzQsImV4cCI6MjA4NDM1MTI3NH0.zKLYQa-qQDrkIyKtdggF1CVZiJK4pb67XxdEUcDm4bk';
+
 let supabaseClient = null;
 let userSession = null;
 
@@ -9,12 +13,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function initApp() {
     try {
-        // Fetch config from backend to avoid hardcoding keys
-        const res = await fetch('/api/config');
-        const config = await res.json();
-
-        if (config.supabaseUrl && config.supabaseKey) {
-            supabaseClient = window.supabase.createClient(config.supabaseUrl, config.supabaseKey);
+        // Initialize Supabase client
+        if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             window.supabaseClient = supabaseClient; // Export
             await initAuth();
         } else {
