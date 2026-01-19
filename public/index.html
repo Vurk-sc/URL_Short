@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkTrim | Premium URL Shortener</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .glass-dark {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+    </style>
+</head>
+
+<body
+    class="bg-gray-50 text-slate-800 antialiased min-h-screen relative overflow-x-hidden selection:bg-blue-100 selection:text-blue-700">
+
+    <!-- Background Decor -->
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div
+            class="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-400/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2">
+        </div>
+        <div
+            class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-400/20 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2">
+        </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="fixed top-0 w-full z-50 glass border-b border-gray-100 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-2 group">
+                <div
+                    class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform duration-300">
+                    <i class="fas fa-link text-lg"></i>
+                </div>
+                <span class="text-2xl font-bold tracking-tight text-slate-800">Link<span
+                        class="text-blue-600">Trim</span></span>
+            </a>
+
+            <div class="flex items-center gap-4">
+                <!-- Auth State: Hidden until loaded -->
+                <div id="authLinks" class="flex items-center gap-4">
+                    <a href="auth.html" class="text-slate-600 hover:text-blue-600 font-medium transition-colors">Log
+                        In</a>
+                    <a href="auth.html"
+                        class="px-5 py-2.5 bg-slate-900 text-white rounded-full font-medium hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">Sign
+                        Up</a>
+                </div>
+
+                <div id="userMenu" class="hidden flex items-center gap-4">
+                    <span id="userEmail" class="hidden md:block text-slate-600 font-medium"></span>
+                    <button id="logoutBtn"
+                        class="w-10 h-10 rounded-full bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-500 flex items-center justify-center transition-colors">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <main class="pt-32 pb-20 px-6">
+        <div class="max-w-4xl mx-auto text-center relative">
+            <div
+                class="animate-float absolute -top-10 -left-10 text-6xl opacity-20 text-blue-500 pointer-events-none filter blur-sm">
+                🔗</div>
+            <div class="animate-float absolute top-20 -right-10 text-6xl opacity-20 text-purple-500 pointer-events-none filter blur-sm"
+                style="animation-delay: 2s">✨</div>
+
+            <span
+                class="inline-block py-1 px-3 rounded-full bg-blue-50 text-blue-600 text-sm font-semibold mb-6 border border-blue-100">Try
+                our new Analytics Features</span>
+
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                Shorten Links, <br>
+                <span class="gradient-text">Expand Reach</span>
+            </h1>
+            <p class="text-xl text-slate-500 mb-12 max-w-2xl mx-auto leading-relaxed">
+                Transform clarity-killing long URLs into powerful marketing assets. Track clicks, analyze data, and
+                manage your brand.
+            </p>
+
+            <!-- Shortener Box -->
+            <div
+                class="bg-white rounded-3xl p-2 shadow-2xl border border-gray-100 max-w-3xl mx-auto transform transition-all hover:scale-[1.01]">
+                <form id="shortenForm" class="flex flex-col md:flex-row gap-2">
+                    <div class="relative flex-grow group">
+                        <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                            <i class="fas fa-link text-gray-400 group-focus-within:text-blue-500 transition-colors"></i>
+                        </div>
+                        <input type="url" id="urlInput" placeholder="Paste your long link here..."
+                            class="w-full pl-14 pr-6 py-5 rounded-2xl bg-gray-50 border-transparent focus:bg-white focus:border-transparent focus:ring-0 text-lg placeholder-gray-400 transition-all outline-none"
+                            required>
+                    </div>
+                    <button type="submit"
+                        class="bg-blue-600 user-select-none hover:bg-blue-700 text-white rounded-2xl px-10 py-4 font-bold text-lg shadow-lg hover:shadow-blue-500/30 transition-all duration-300 flex items-center justify-center gap-2 min-w-[160px]">
+                        <span>Shorten</span>
+                        <i class="fas fa-magic"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Messages -->
+            <div id="messageArea" class="mt-8 max-w-lg mx-auto hidden"></div>
+
+            <!-- Result Card -->
+            <div id="resultCard"
+                class="hidden mt-12 max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 text-left">
+                <div class="p-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <h3 class="font-bold text-xl text-slate-800">Success!</h3>
+                        </div>
+                        <button onclick="document.getElementById('resultCard').classList.add('hidden')"
+                            class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+                    </div>
+
+                    <div
+                        class="bg-gray-50 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 border border-gray-200">
+                        <a id="shortLink" href="#" target="_blank"
+                            class="text-2xl font-bold text-blue-600 hover:underline truncate max-w-[300px]"></a>
+                        <button onclick="copyToClipboard()"
+                            class="px-6 py-2 bg-white border border-gray-200 shadow-sm text-slate-600 font-semibold rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
+                            <i class="far fa-copy"></i> <span>Copy</span>
+                        </button>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-t border-gray-100">
+                        <p class="text-sm text-gray-500 mb-1">Authentic URL</p>
+                        <p id="authUrl" class="text-sm text-slate-700 break-all"></p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Dashboard (Auth Only) -->
+        <section id="dashboard" class="hidden max-w-6xl mx-auto mt-24">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-3xl font-bold text-slate-800">Your Activities</h2>
+                <div class="flex gap-2">
+                    <button onclick="loadUrls()"
+                        class="w-10 h-10 rounded-lg bg-white shadow-sm border border-gray-200 text-gray-500 hover:text-blue-600 flex items-center justify-center transition-colors">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-gray-50/50 border-b border-gray-100">
+                                <th class="p-6 font-semibold text-gray-600 text-sm">Short Link</th>
+                                <th class="p-6 font-semibold text-gray-600 text-sm">Original URL</th>
+                                <th class="p-6 font-semibold text-gray-600 text-sm text-center">Clicks</th>
+                                <th class="p-6 font-semibold text-gray-600 text-sm text-right">Date</th>
+                                <th class="p-6 font-semibold text-gray-600 text-sm text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="urlTableBody" class="divide-y divide-gray-100">
+                            <!-- Populated via Script -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="emptyState" class="hidden p-12 text-center text-gray-500">
+                    <div
+                        class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300 text-2xl">
+                        <i class="fas fa-inbox"></i>
+                    </div>
+                    <p>No links created yet.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Configure Script -->
+    <script src="script.js"></script>
+</body>
+
+</html>

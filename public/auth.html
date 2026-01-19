@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication | LinkTrim</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
+
+    <!-- Decor -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div class="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[120px]">
+        </div>
+        <div class="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-[120px]">
+        </div>
+    </div>
+
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 md:p-10 border border-gray-100 relative z-10">
+
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <a href="/"
+                class="inline-block mb-4 text-3xl font-bold tracking-tight text-slate-800 hover:opacity-80 transition">
+                Link<span class="text-blue-600">Trim</span>
+            </a>
+            <h2 id="pageTitle" class="text-xl text-gray-500 font-medium">Welcome Back</h2>
+        </div>
+
+        <!-- Toggle -->
+        <div class="bg-gray-100 p-1 rounded-xl flex mb-8">
+            <button id="toggleLogin"
+                class="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all bg-white text-gray-800 shadow-sm">Log
+                In</button>
+            <button id="toggleSignup"
+                class="flex-1 py-2.5 rounded-lg text-sm font-bold text-gray-500 hover:text-gray-700 transition-all">Sign
+                Up</button>
+        </div>
+
+        <!-- Form -->
+        <form id="authForm" class="space-y-5">
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Email Address</label>
+                <div class="relative">
+                    <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="email" id="email"
+                        class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none"
+                        placeholder="name@example.com" required>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Password</label>
+                <div class="relative">
+                    <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="password" id="password"
+                        class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none"
+                        placeholder="••••••••" required>
+                </div>
+            </div>
+
+            <div id="errorMsg" class="hidden p-3 rounded-lg bg-red-50 text-red-600 text-sm text-center"></div>
+            <div id="successMsg" class="hidden p-3 rounded-lg bg-green-50 text-green-600 text-sm text-center"></div>
+
+            <button type="submit" id="submitBtn"
+                class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+                Log In
+            </button>
+        </form>
+
+        <p class="text-center mt-8 text-sm text-gray-400">
+            Secure authentication provided by <span class="text-green-600 font-semibold"><i class="fas fa-bolt"></i>
+                Supabase</span>
+        </p>
+    </div>
+
+    <!-- Script to handle Auth Switch -->
+    <script src="script.js"></script>
+    <script>
+        const form = document.getElementById('authForm');
+        const toggleLogin = document.getElementById('toggleLogin');
+        const toggleSignup = document.getElementById('toggleSignup');
+        const submitBtn = document.getElementById('submitBtn');
+        const pageTitle = document.getElementById('pageTitle');
+        let isLogin = true;
+
+        function setMode(login) {
+            isLogin = login;
+            if (login) {
+                toggleLogin.classList.add('bg-white', 'text-gray-800', 'shadow-sm');
+                toggleLogin.classList.remove('text-gray-500');
+                toggleSignup.classList.remove('bg-white', 'text-gray-800', 'shadow-sm');
+                toggleSignup.classList.add('text-gray-500');
+                pageTitle.textContent = "Welcome Back";
+                submitBtn.textContent = "Log In";
+                submitBtn.classList.remove('bg-purple-600', 'shadow-purple-500/30', 'hover:bg-purple-700');
+                submitBtn.classList.add('bg-blue-600', 'shadow-blue-500/30', 'hover:bg-blue-700');
+            } else {
+                toggleSignup.classList.add('bg-white', 'text-gray-800', 'shadow-sm');
+                toggleSignup.classList.remove('text-gray-500');
+                toggleLogin.classList.remove('bg-white', 'text-gray-800', 'shadow-sm');
+                toggleLogin.classList.add('text-gray-500');
+                pageTitle.textContent = "Create an Account";
+                submitBtn.textContent = "Get Started";
+                submitBtn.classList.remove('bg-blue-600', 'shadow-blue-500/30', 'hover:bg-blue-700');
+                submitBtn.classList.add('bg-purple-600', 'shadow-purple-500/30', 'hover:bg-purple-700');
+            }
+            document.getElementById('errorMsg').classList.add('hidden');
+            document.getElementById('successMsg').classList.add('hidden');
+        }
+
+        toggleLogin.addEventListener('click', () => setMode(true));
+        toggleSignup.addEventListener('click', () => setMode(false));
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+            const successMsg = document.getElementById('successMsg');
+
+            errorMsg.classList.add('hidden');
+            successMsg.classList.add('hidden');
+
+            // Get Supabase from window (loaded by script.js)
+            const sb = window.supabaseClient;
+            if (!sb) {
+                errorMsg.textContent = "Supabase not initialized. Check script.js configuration.";
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                if (isLogin) {
+                    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    window.location.href = '/';
+                } else {
+                    const { data, error } = await sb.auth.signUp({ email, password });
+                    if (error) throw error;
+                    successMsg.textContent = "Account created! Please check your email or log in.";
+                    successMsg.classList.remove('hidden');
+                    setTimeout(() => setMode(true), 2000);
+                }
+            } catch (err) {
+                errorMsg.textContent = err.message;
+                errorMsg.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+
+</html>
